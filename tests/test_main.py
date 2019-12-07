@@ -1,5 +1,5 @@
 import unittest
-from tests.test_add import TestAdd
+from tests.test_add.test_add import TestAdd
 
 loader = unittest.TestLoader()
 suite = unittest.TestSuite()
