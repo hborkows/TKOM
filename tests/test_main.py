@@ -1,7 +1,10 @@
 import unittest
+from tests.test_add import TestAdd
 
+loader = unittest.TestLoader()
+suite = unittest.TestSuite()
 
-class TestMain(unittest.TestCase):
+suite.addTests(loader.loadTestsFromTestCase(TestAdd))
 
-    def test_print(self):
-        self.assertTrue(1 == 1)
+runner = unittest.TextTestRunner(verbosity=3)
+result = runner.run(suite)
