@@ -1,10 +1,10 @@
 import unittest
-from tests.test_add.test_add import TestAdd
+from tests.test_lexer.test_lexer import TestLexer
 
 loader = unittest.TestLoader()
 suite = unittest.TestSuite()
 
-suite.addTests(loader.loadTestsFromTestCase(TestAdd))
+suite.addTests(loader.loadTestsFromTestCase(TestLexer))
 
 runner = unittest.TextTestRunner(verbosity=3)
 result = runner.run(suite)
