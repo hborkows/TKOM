@@ -37,8 +37,11 @@ class Lexer:
         if token:
             return token
 
-        token = self._check_one_char_symbols()
-        return token
+        try:
+            token = self._check_one_char_symbols()
+            return token
+        except LexerError:
+            raise LexerError
 
     def _skip_whitespace(self):
         while self._source.get_char().isspace():
@@ -66,11 +69,11 @@ class Lexer:
         if self._source.get_char().isalpha():
             buffer += self._source.pop_char()
 
-            while self._source.get_char().isalnum():
+            while self._source.get_char().isalnum() or self._source.get_char() == '_' or self._source.get_char() == '-':
                 buffer += self._source.pop_char()
 
             if buffer in keywords.keys():  # buffer contains a keyword
-                return Token(lex_type=keywords['buffer'])
+                return Token(lex_type=keywords[buffer])
             elif buffer in functions:  # buffer contains an id of function
                 return Token(lex_type=LexType.func_name, text=buffer)
             else:  # buffer contains an object id
@@ -141,6 +144,8 @@ class Lexer:
             return Token(LexType.left_bracket)
         elif char == ')':
             return Token(LexType.right_bracket)
+        elif char == '=':
+            return Token(LexType.assign_op)
         elif char == '$':
             return Token(LexType.eof)
         else:
