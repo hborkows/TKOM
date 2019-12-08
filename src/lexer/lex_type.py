@@ -30,3 +30,7 @@ class LexType(Enum):
     destroy_kw = auto()
     exile_kw = auto()
     add_kw = auto()
+    power_kw = auto()
+    toughness_kw = auto()
+    eof = auto()
+

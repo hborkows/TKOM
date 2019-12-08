@@ -6,6 +6,9 @@ from src.source.source import Source
 from src.lexer.lex_type import LexType
 
 
+class LexerError(Exception):
+    pass
+
 class Lexer:
 
     def __init__(self, source: Source):
@@ -26,13 +29,19 @@ class Lexer:
         if token:
             return token
 
+        token = self._check_inc_dec_operator()
+        if token:
+            return token
+
+        token = self._check_one_char_symbols()
+        return token
 
     def _skip_whitespace(self):
         while self._source.get_char().isspace():
             self._source.pop_char()
 
     def _check_keyword(self) -> Optional[Token]:
-        keywords: Dict[str,LexType] = {
+        keywords: Dict[str, LexType] = {
             'gamestate': LexType.gamestate_kw,
             'reset': LexType.reset_kw,
             'clear_cards': LexType.clear_cards_kw,
@@ -43,7 +52,9 @@ class Lexer:
             'destroy': LexType.destroy_kw,
             'exile': LexType.exile_kw,
             'add': LexType.add_kw,
-            'repeat': LexType.repeat_kw
+            'repeat': LexType.repeat_kw,
+            'power': LexType.power_kw,
+            'toughness': LexType.toughness_kw
         }
         functions: Tuple[str, str, str, str] = ('Player', 'Card', 'Token', 'Counter')
         buffer: str = ''
@@ -54,11 +65,11 @@ class Lexer:
             while self._source.get_char().isalnum():
                 buffer += self._source.pop_char()
 
-            if buffer in keywords.keys(): # buffer contains a keyword
+            if buffer in keywords.keys():  # buffer contains a keyword
                 return Token(lex_type=keywords['buffer'])
-            elif buffer in functions: # buffer contains an id of function
+            elif buffer in functions:  # buffer contains an id of function
                 return Token(lex_type=LexType.func_name, text=buffer)
-            else: # buffer contains an object id
+            else:  # buffer contains an object id
                 return Token(lex_type=LexType.object_id, text=buffer)
         else:
             return None
@@ -90,4 +101,43 @@ class Lexer:
         else:
             return None
 
+    def _check_inc_dec_operator(self) -> Optional[Token]:
+        if self._source.get_char() == '+':
+            self._source.pop_char()
+            if self._source.get_char() == '+':
+                self._source.pop_char()
+                return Token(LexType.inc_op)
+            else:
+                return Token(LexType.add_op)
+        elif self._source.get_char() == '-':
+            self._source.pop_char()
+            if self._source.get_char() == '-':
+                self._source.pop_char()
+                return Token(LexType.dec_op)
+            else:
+                return Token(LexType.sub_op)
+        else:
+            return None
 
+    def _check_one_char_symbols(self) -> Token:
+        char: str = self._source.pop_char()
+        if char == '/':
+            return Token(LexType.div_op)
+        elif char == '*':
+            return Token(LexType.mul_op)
+        elif char == ':':
+            return Token(LexType.card_op)
+        elif char == '.':
+            return Token(LexType.property_op)
+        elif char == '{':
+            return Token(LexType.left_curl_bracket)
+        elif char == '}':
+            return Token(LexType.right_curl_bracket)
+        elif char == '(':
+            return Token(LexType.left_bracket)
+        elif char == ')':
+            return Token(LexType.right_bracket)
+        elif char == '$':
+            return Token(LexType.eof)
+        else:
+            raise LexerError
