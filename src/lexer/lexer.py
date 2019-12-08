@@ -9,10 +9,14 @@ from src.lexer.lex_type import LexType
 class LexerError(Exception):
     pass
 
+
 class Lexer:
 
     def __init__(self, source: Source):
         self._source = source
+
+    def get_source(self):
+        return self._source
 
     def next_token(self) -> Token:
         self._skip_whitespace()
