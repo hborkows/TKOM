@@ -77,5 +77,17 @@ class Lexer:
             return None
 
     def _check_text(self) -> Optional[Token]:
+        buffer: str = ''
+
+        if self._source.get_char() == '"':
+            self._source.pop_char()
+
+            while self._source.get_char() != '"':
+                buffer += self._source.pop_char()
+
+            self._source.pop_char()
+            return Token(LexType.text, text=buffer)
+        else:
+            return None
 
 

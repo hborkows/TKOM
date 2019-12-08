@@ -23,7 +23,6 @@ class LexType(Enum):
     right_bracket = auto()
     left_curl_bracket = auto()
     right_curl_bracket = auto()
-    quote = auto()
     block_kw = auto()
     attack_kw = auto()
     life_kw = auto()
