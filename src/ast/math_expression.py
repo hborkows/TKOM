@@ -1,7 +1,6 @@
 from src.ast.ast_node import ASTNode
 from src.ast.math_op import MathOp
 from typing import Optional, List
-from src.lexer.token import Token
 
 
 class MathExpression(ASTNode):
