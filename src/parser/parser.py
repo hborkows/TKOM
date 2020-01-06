@@ -2,6 +2,10 @@ from src.lexer.lexer import Lexer
 from src.ast.ast_node import ASTNode
 from src.ast.instruction_block import InstructionBlock
 from src.ast.instruction import Instruction
+from src.ast.spec_command import SpecialCommand
+from src.ast.action import Action
+from src.ast.loop import Loop
+from src.ast.assignment import Assignment
 from src.lexer.token import Token
 from src.lexer.lex_type import LexType
 from typing import Optional, List, Tuple
@@ -21,7 +25,7 @@ class Parser:
         self._current_token = self._lexer.next_token()
         return result
 
-    def _accept(self, token_types: Tuple[LexType]) -> bool:
+    def _accept(self, token_types: List[LexType]) -> bool:
         return self._current_token.type in token_types
 
     def _parse_instruction_block(self) -> InstructionBlock:
@@ -32,5 +36,27 @@ class Parser:
         return InstructionBlock(instructions=instructions)
 
     def _parse_instruction(self) -> Instruction:
+        if self._accept([LexType.gamestate_kw, LexType.reset_kw, LexType.clear_cards_kw]):
+            return self._parse_spec_command()
+        elif self._accept([LexType.object_id]):
+            return self._parse_action_or_assignment()
+        elif self._accept([LexType.repeat_kw]):
+            return self._parse_loop()
+        else:
+            raise ParserError
+
+    def _parse_spec_command(self) -> SpecialCommand:
         pass
 
+    def _parse_action_or_assignment(self) -> Action:
+        pass
+
+    def _parse_assignment(self) -> Assignment:
+        pass
+
+    def _parse_loop(self) -> Loop:
+        pass
+
+
+class ParserError(Exception):
+    pass
