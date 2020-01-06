@@ -6,26 +6,22 @@ from src.ast.ast_node import ASTNode
 
 class Object(ASTNode):
 
-    def __init__(self, token: Token, object_property: Optional[ASTNode], card: Optional[ASTNode], type: str):
-        self.id = token.text
-        self.property = object_property
-        self.card = card
-        self.type = type
+    def __init__(self, object: Token, object_type: str, object_property: Optional[Token], card: Optional[Token]):
+        self.id = object.text
+        self.property = object_property.text
+        self.card = card.text
+        self.type = object_type
 
     def get_representation(self) -> str:
         if self.type == 'player':
             return 'Player: ' + self.id
         elif self.type == 'card':
-            return 'Card: ' + self.id
-        else:
-            return 'Property: ' + self.id
+            return 'Card: ' + self.id + ':' + self.card
+        elif self.type == 'card_property':
+            return 'Card property: ' + self.id + ':' + self.card + '.' + self.property
+        elif self.type == 'property':
+            return 'Property: ' + self.id + '.' + self.property
 
     def get_children(self) -> Optional[List]:
-        result: List[ASTNode] = []
-        if self.card:
-            result.append(self.card)
-        if self.property:
-            result.append(self.property)
-
-        return result
+        return None
 

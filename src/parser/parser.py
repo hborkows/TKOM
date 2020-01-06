@@ -8,6 +8,7 @@ from src.ast.action import Action
 from src.ast.loop import Loop
 from src.ast.assignment import Assignment
 from src.ast.number import Number
+from src.ast.object import Object
 
 from src.lexer.token import Token
 from src.lexer.lex_type import LexType
@@ -53,7 +54,31 @@ class Parser:
         self._consume_token()
         return result
 
-    def _parse_action_or_assignment(self) -> Action:
+    def _parse_action_or_assignment(self) -> Instruction:
+        pass
+
+    def _parse_object(self) -> Object:
+        if self._accept([LexType.object_id]):
+            part_1: Token = self._consume_token()
+        else:
+            raise ParserError
+
+        if self._accept([LexType.property_op]):
+            part_2: Token = self._consume_token()
+            return Object(object=part_1, object_property=part_2, card=None, object_type='property')
+        elif self._accept([LexType.card_op]):
+            part_2: Token = self._consume_token()
+        else:
+            return Object(object=part_1, card=None, object_property=None, object_type='player')
+
+        if self._accept([LexType.property_op]):
+            part_3: Token = self._consume_token()
+            return Object(object=part_1, card=part_2, object_property=part_3, object_type='card_property')
+        else:
+            return Object(object=part_1, card=part_2, object_property=None, object_type='card')
+
+
+    def _parse_action(self) -> Action:
         pass
 
     def _parse_assignment(self) -> Assignment:
