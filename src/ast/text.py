@@ -1,5 +1,6 @@
 from src.ast.ast_node import ASTNode
 from src.lexer.token import Token
+from typing import Optional, List
 
 
 class Text(ASTNode):
