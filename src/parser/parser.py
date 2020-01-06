@@ -9,6 +9,7 @@ from src.ast.loop import Loop
 from src.ast.assignment import Assignment
 from src.ast.number import Number
 from src.ast.object import Object
+from src.ast.definition import Definition
 
 from src.lexer.token import Token
 from src.lexer.lex_type import LexType
@@ -55,6 +56,27 @@ class Parser:
         return result
 
     def _parse_action_or_assignment(self) -> Instruction:
+        actions = [LexType.block_kw, LexType.attack_kw, LexType.life_kw, LexType.remove_kw, LexType.destroy_kw,
+                   LexType.exile_kw, LexType.add_kw, LexType.repeat_kw]
+
+        object: Object = self._parse_object()
+
+        if self._accept([LexType.assign_op]):
+            self._consume_token()
+            definition: Definition = self._parse_definition()
+            return Assignment(object=object, definition=definition)
+        elif self._accept(actions):
+            action_token: Token = self._consume_token()
+            if self._accept([LexType.object_id]):
+                object2 = self._parse_object()
+            else:
+                object2 = None
+
+            return Action(token=action_token, object1=object, object2=object2)
+        else:
+            raise ParserError
+
+    def _parse_definition(self) -> Definition:
         pass
 
     def _parse_object(self) -> Object:
@@ -79,9 +101,6 @@ class Parser:
 
 
     def _parse_action(self) -> Action:
-        pass
-
-    def _parse_assignment(self) -> Assignment:
         pass
 
     def _parse_loop(self) -> Loop:
