@@ -1,10 +1,11 @@
 from src.ast.ast_node import ASTNode
+from src.ast.instruction import Instruction
 from src.ast.instruction_block import InstructionBlock
 from src.ast.math_expression import MathExpression
 from typing import Optional, List
 
 
-class Loop(ASTNode):
+class Loop(Instruction):
 
     def __init__(self, count: MathExpression, block: InstructionBlock):
         self.block = block
