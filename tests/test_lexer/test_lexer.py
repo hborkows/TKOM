@@ -12,7 +12,7 @@ class TestLexer(unittest.TestCase):
     def setUp(self) -> None:
         self.lexer = Lexer(source=Source())
 
-    def test__object_id(self):
+    def test_object_id(self):
         self.lexer.get_source().set_code_line('Hubert')
         token = self.lexer.next_token()
         self.assertEqual(token.type, LexType.object_id)
