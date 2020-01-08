@@ -16,6 +16,7 @@ from src.ast.math_expression import MathExpression
 from src.ast.number import Number
 from src.ast.math_op import MathOp
 from src.ast.ast_node import ASTNode
+from src.ast.action import Action
 
 
 def print_ast(root: ASTNode, log: List[str]):
@@ -42,8 +43,9 @@ class TestParser(unittest.TestCase):
         node = self.parser.parse()
 
         test_node = InstructionBlock(instructions=[
-            Assignment(object=Object(object_base=Token(lex_type=LexType.object_id, text='hubert'), object_type='player'),
-                       definition=Definition(func_name='Player', arguments=[]))])
+            Assignment(
+                object=Object(object_base=Token(lex_type=LexType.object_id, text='hubert'), object_type='player'),
+                definition=Definition(func_name='Player', arguments=[]))])
 
         obj_type = node.get_children()[0].get_children()[0].get_representation()
         func_name = node.get_children()[0].get_children()[1].get_representation()
@@ -69,6 +71,27 @@ class TestParser(unittest.TestCase):
                                      object_type='property',
                                      object_property=Token(lex_type=LexType.object_id, text='health')),
                        definition=Definition(func_name='Property', arguments=[test_arg]))
+        ])
+
+        node_log = []
+        test_log = []
+        print_ast(node, node_log)
+        print_ast(test_node, test_log)
+
+        self.assertEqual(node_log, test_log)
+
+    def test_action(self):
+        self.parser.get_lexer().get_source().set_code_line('hubert:bear attack janek:construct')
+        node = self.parser.parse()
+
+        test_node = InstructionBlock(instructions=[
+            Action(token=Token(LexType.attack_kw),
+                   object1=Object(object_base=Token(lex_type=LexType.object_id, text='hubert'),
+                                  object_type='card',
+                                  card=Token(LexType.object_id, text='bear')),
+                   object2=Object(object_base=Token(lex_type=LexType.object_id, text='janek'),
+                                  object_type='card',
+                                  card=Token(LexType.object_id, text='construct')))
         ])
 
         node_log = []
