@@ -24,7 +24,7 @@ class TestLexer(unittest.TestCase):
         self.assertEqual(token.text, 'lowercase_id')
 
     def test_function_name(self):
-        functions: Tuple[str, str, str, str] = ('Player', 'Card', 'Token', 'Counter')
+        functions: Tuple[str, str, str, str] = ('Player', 'Card', 'Token', 'Property')
 
         for function in functions:
             self.lexer.get_source().set_code_line(function)
