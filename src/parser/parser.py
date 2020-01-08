@@ -84,7 +84,6 @@ class Parser:
             raise ParserError
 
     def _parse_definition(self) -> Definition:
-        arguments = []
         if self._accept([LexType.func_name]):
             function_name: str = self._consume_token().type.name
         else:
@@ -95,8 +94,22 @@ class Parser:
             self._accept_and_consume_token(LexType.right_bracket)
             return Definition(func_name=function_name, arguments=[])
         elif function_name == 'Card':
-
-
+            self._accept_and_consume_token(LexType.left_bracket)
+            args = self._parse_arguments(['text', 'text', 'text', 'number', 'number', 'text'])
+            self._accept_and_consume_token(LexType.right_bracket)
+            return Definition(func_name=function_name, arguments=args)
+        elif function_name == 'Token':
+            self._accept_and_consume_token(LexType.left_bracket)
+            args = self._parse_arguments(['text', 'number', 'number', 'text'])
+            self._accept_and_consume_token(LexType.right_bracket)
+            return Definition(func_name=function_name, arguments=args)
+        elif function_name == 'Property':
+            self._accept_and_consume_token(LexType.left_bracket)
+            args = self._parse_arguments(['number'])
+            self._accept_and_consume_token(LexType.right_bracket)
+            return Definition(func_name=function_name, arguments=args)
+        else:
+            raise ParserError
 
     def _parse_arguments(self, type_list: List[str]) -> List:
         result = []
@@ -111,6 +124,8 @@ class Parser:
                     result.append(Number(token=self._consume_token()))
                 else:
                     raise ParserError
+            else:
+                raise ParserError
 
         return result
 
