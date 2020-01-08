@@ -11,4 +11,4 @@ class SpecialCommand(Instruction):
         return 'Special command: ' + self.command.name
 
     def get_children(self) -> None:
-        return None
+        return []

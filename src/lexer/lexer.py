@@ -63,7 +63,7 @@ class Lexer:
             'power': LexType.power_kw,
             'toughness': LexType.toughness_kw
         }
-        functions: Tuple[str, str, str, str] = ('Player', 'Card', 'Token', 'Counter')
+        functions: Tuple[str, str, str, str] = ('Player', 'Card', 'Token', 'Property')
         buffer: str = ''
 
         if self._source.get_char().isalpha():

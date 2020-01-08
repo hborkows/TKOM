@@ -10,13 +10,12 @@ from src.ast.assignment import Assignment
 from src.ast.number import Number
 from src.ast.object import Object
 from src.ast.definition import Definition
-from src.ast.text import Text
 from src.ast.math_expression import MathExpression
 from src.ast.math_op import MathOp
 
 from src.lexer.token import Token
 from src.lexer.lex_type import LexType
-from typing import Optional, List, Tuple
+from typing import Optional, List
 
 
 class Parser:
@@ -25,7 +24,13 @@ class Parser:
         self._lexer = lexer
         self._current_token: Optional[Token] = None
 
+    def get_lexer(self):
+        return self._lexer
+
     def parse(self) -> ASTNode:
+        if not self._current_token:
+            self._consume_token()
+
         return self._parse_instruction_block()
 
     def _consume_token(self) -> Token:
@@ -87,7 +92,7 @@ class Parser:
 
     def _parse_definition(self) -> Definition:
         if self._accept([LexType.func_name]):
-            function_name: str = self._consume_token().type.name
+            function_name: str = self._consume_token().text
         else:
             raise ParserError
 
@@ -123,7 +128,7 @@ class Parser:
                     raise ParserError
             elif arg == 'number':
                 if self._accept([LexType.number]):
-                    result.append(Number(token=self._consume_token()))
+                    result.append(self._parse_math_expression())
                 else:
                     raise ParserError
             else:
@@ -131,10 +136,10 @@ class Parser:
 
         return result
 
-    def _parse_factor(self) -> MathExpression:
+    def _parse_factor(self) -> ASTNode:
         if self._accept([LexType.number]):
             token: Token = self._consume_token()
-            return MathExpression(operand1=Number(token=token), operand2=None, operator=None)
+            return Number(token=token)
         elif self._accept([LexType.left_bracket]):
             self._accept_and_consume_token(LexType.left_bracket)
             node: MathExpression = self._parse_math_expression()
@@ -168,18 +173,21 @@ class Parser:
             raise ParserError
 
         if self._accept([LexType.property_op]):
+            self._consume_token()
             part_2: Token = self._consume_token()
-            return Object(object=part_1, object_property=part_2, card=None, object_type='property')
+            return Object(object_base=part_1, object_property=part_2, card=None, object_type='property')
         elif self._accept([LexType.card_op]):
+            self._consume_token()
             part_2: Token = self._consume_token()
         else:
-            return Object(object=part_1, card=None, object_property=None, object_type='player')
+            return Object(object_base=part_1, card=None, object_property=None, object_type='player')
 
         if self._accept([LexType.property_op]):
+            self._consume_token()
             part_3: Token = self._consume_token()
-            return Object(object=part_1, card=part_2, object_property=part_3, object_type='card_property')
+            return Object(object_base=part_1, card=part_2, object_property=part_3, object_type='card_property')
         else:
-            return Object(object=part_1, card=part_2, object_property=None, object_type='card')
+            return Object(object_base=part_1, card=part_2, object_property=None, object_type='card')
 
     def _parse_loop(self) -> Loop:
         self._consume_token()

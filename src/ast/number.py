@@ -12,4 +12,4 @@ class Number(ASTNode):
         return 'Number: ' + str(self.value)
 
     def get_children(self) -> Optional[List]:
-        return None
+        return []

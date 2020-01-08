@@ -12,4 +12,4 @@ class MathOp(ASTNode):
         return self.operator.name
 
     def get_children(self) -> Optional[List]:
-        return None
+        return []
