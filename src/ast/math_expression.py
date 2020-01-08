@@ -5,7 +5,7 @@ from typing import Optional, List
 
 class MathExpression(ASTNode):
 
-    def __init__(self, operand1: ASTNode, operand2: ASTNode, operator: MathOp):
+    def __init__(self, operand1: ASTNode, operand2: Optional[ASTNode], operator: Optional[MathOp]):
         self.operand1 = operand1
         self.operand2 = operand2
         self.operator = operator

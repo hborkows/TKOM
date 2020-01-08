@@ -11,6 +11,8 @@ from src.ast.number import Number
 from src.ast.object import Object
 from src.ast.definition import Definition
 from src.ast.text import Text
+from src.ast.math_expression import MathExpression
+from src.ast.math_op import MathOp
 
 from src.lexer.token import Token
 from src.lexer.lex_type import LexType
@@ -66,12 +68,12 @@ class Parser:
         actions = [LexType.block_kw, LexType.attack_kw, LexType.life_kw, LexType.remove_kw, LexType.destroy_kw,
                    LexType.exile_kw, LexType.add_kw, LexType.repeat_kw]
 
-        object: Object = self._parse_object()
+        object1: Object = self._parse_object()
 
         if self._accept([LexType.assign_op]):
             self._consume_token()
             definition: Definition = self._parse_definition()
-            return Assignment(object=object, definition=definition)
+            return Assignment(object=object1, definition=definition)
         elif self._accept(actions):
             action_token: Token = self._consume_token()
             if self._accept([LexType.object_id]):
@@ -79,7 +81,7 @@ class Parser:
             else:
                 object2 = None
 
-            return Action(token=action_token, object1=object, object2=object2)
+            return Action(token=action_token, object1=object1, object2=object2)
         else:
             raise ParserError
 
@@ -128,6 +130,36 @@ class Parser:
                 raise ParserError
 
         return result
+
+    def _parse_factor(self) -> MathExpression:
+        if self._accept([LexType.number]):
+            token: Token = self._consume_token()
+            return MathExpression(operand1=Number(token=token), operand2=None, operator=None)
+        elif self._accept([LexType.left_bracket]):
+            self._accept_and_consume_token(LexType.left_bracket)
+            node: MathExpression = self._parse_math_expression()
+            self._accept_and_consume_token(LexType.right_bracket)
+            return node
+        else:
+            raise ParserError
+
+    def _parse_term(self) -> MathExpression:
+        node: MathExpression = self._parse_factor()
+
+        while self._accept([LexType.mul_op, LexType.div_op]):
+            token: Token = self._consume_token()
+            node = MathExpression(operand1=node, operator=MathOp(token=token), operand2=self._parse_factor())
+
+        return node
+
+    def _parse_math_expression(self) -> MathExpression:
+        node: MathExpression = self._parse_term()
+
+        while self._accept([LexType.add_op, LexType.sub_op]):
+            token: Token = self._consume_token()
+            node = MathExpression(operand1=node, operator=MathOp(token=token), operand2=self._parse_term())
+
+        return node
 
     def _parse_object(self) -> Object:
         if self._accept([LexType.object_id]):
