@@ -34,6 +34,12 @@ class Parser:
     def _accept(self, token_types: List[LexType]) -> bool:
         return self._current_token.type in token_types
 
+    def _accept_and_consume_token(self, token_type: LexType):
+        if self._accept([token_type]):
+            self._consume_token()
+        else:
+            raise ParserError
+
     def _parse_instruction_block(self) -> InstructionBlock:
         instructions: List[Instruction] = []
         while self._current_token.type != LexType.eof:
@@ -85,28 +91,28 @@ class Parser:
             raise ParserError
 
         if function_name == 'Player':
-            if self._accept([LexType.left_bracket]):
-                self._consume_token()
-            else:
-                raise ParserError
-            if self._accept([LexType.right_bracket]):
-                self._consume_token()
-            else:
-                raise ParserError
+            self._accept_and_consume_token(LexType.left_bracket)
+            self._accept_and_consume_token(LexType.right_bracket)
+            return Definition(func_name=function_name, arguments=[])
         elif function_name == 'Card':
+
+
 
     def _parse_arguments(self, type_list: List[str]) -> List:
         result = []
         for arg in type_list:
             if arg == 'text':
-                pass
+                if self._accept([LexType.text]):
+                    result.append(Text(token=self._consume_token()))
+                else:
+                    raise ParserError
             elif arg == 'number':
-                pass
+                if self._accept([LexType.number]):
+                    result.append(Number(token=self._consume_token()))
+                else:
+                    raise ParserError
 
         return result
-
-    def _parse_text(self) -> Text:
-
 
     def _parse_object(self) -> Object:
         if self._accept([LexType.object_id]):
