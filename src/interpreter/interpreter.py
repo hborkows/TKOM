@@ -14,6 +14,7 @@ from src.ast.object import Object
 from src.ast.definition import Definition
 from src.ast.math_expression import MathExpression
 from src.ast.math_op import MathOp
+from src.lexer.lex_type import LexType
 
 from src.objects.card import Card
 from src.objects.player import Player
@@ -44,7 +45,7 @@ class Interpreter(NodeVisitor):
             self._visit(instruction)
 
     def _visit_Instruction(self, node: Instruction):
-        if isinstance(node, SpecialCommand) or isinstance(node, Assignment) or isinstance(node, Action):
+        if isinstance(node, SpecialCommand) or isinstance(node, Assignment) or isinstance(node, Action) or isinstance(node, Loop):
             self._visit(node)
         else:
             raise InterpreterError
@@ -149,6 +150,25 @@ class Interpreter(NodeVisitor):
                                                                                            value=definition.arguments[0])
         else:
             raise InterpreterError
+
+    def _visit_MathExpression(self, node: MathExpression) -> int:
+        operator = node.operator.operator
+        if operator == LexType.add_op:
+            return self._visit(node.operand1) + self._visit(node.operand2)
+        elif operator == LexType.sub_op:
+            return self._visit(node.operand1) - self._visit(node.operand2)
+        elif operator == LexType.mul_op:
+            return self._visit(node.operand1) * self._visit(node.operand2)
+        elif operator == LexType.div_op:
+            if self._visit(node.operand2) == 0:
+                raise ZeroDivisionError
+            return self._visit(node.operand1) / self._visit(node.operand2)
+
+    def _visit_Number(self, node: Number) -> int:
+        return node.value
+
+    def _visit_Loop(self, node: Loop):
+        pass
 
 
 class InterpreterError(Exception):
