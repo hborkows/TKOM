@@ -1,5 +1,5 @@
 from src.interpreter.symbol import Symbol
-from typing import List, Optional, Dict
+from typing import Optional, Dict, List
 
 
 class SymbolTable:
@@ -18,3 +18,20 @@ class SymbolTable:
             return self._symbol_table[name]
         else:
             return None
+
+    def get_symbols_by_type(self, symbol_type: str) -> List[Symbol]:
+        result: List[Symbol] = []
+        for symbol in self._symbol_table.values():
+            if symbol.symbol_type == symbol_type or symbol_type == 'any':
+                result.append(symbol)
+        return result
+
+    def remove_symbol_by_name(self, name: str):
+        self._symbol_table.pop(name)
+
+    def remove_symbols_by_type(self, symbol_type: str):
+        for item in self.get_symbols_by_type(symbol_type=symbol_type):
+            self.remove_symbol_by_name(item.name)
+
+    def clear(self):
+        self._symbol_table = {}

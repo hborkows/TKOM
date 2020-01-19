@@ -35,6 +35,7 @@ class TestParser(unittest.TestCase):
         self.parser.get_lexer().get_source().set_code_line('gamestate')
         node = self.parser.parse()
         test_node = InstructionBlock(instructions=[SpecialCommand(token=Token(lex_type=LexType.gamestate_kw))])
+        print(type(test_node).__name__)
 
         self.assertEqual(node.get_children()[0].get_representation(), test_node.get_children()[0].get_representation())
 
