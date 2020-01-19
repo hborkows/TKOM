@@ -1,3 +1,4 @@
+from src.ast.text import Text
 from src.lexer.lexer import Lexer
 
 from src.ast.ast_node import ASTNode

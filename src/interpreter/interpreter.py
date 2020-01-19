@@ -15,6 +15,9 @@ from src.ast.definition import Definition
 from src.ast.math_expression import MathExpression
 from src.ast.math_op import MathOp
 
+from src.objects.card import Card
+from src.objects.player import Player
+
 
 class NodeVisitor(object):
     def _visit(self, node: ASTNode):
@@ -71,17 +74,81 @@ class Interpreter(NodeVisitor):
 
         if cur_object.get_type() == 'player':
             self._symbol_table.add_symbol(symbol=Symbol(name=cur_object.get_id(), symbol_type=cur_object.get_type(),
-                                                        base_object=cur_object, parent=None, value=None))
+                                                        base_object=cur_object, parent=None,
+                                                        value=None))
         elif cur_object.get_type() == 'card':
-            pass
+            if not self._symbol_table.get_symbol_by_name(name=cur_object.get_id()):
+                raise InterpreterError
+            self._symbol_table.add_symbol(symbol=Symbol(name=cur_object.get_id() + ':' + cur_object.get_card(),
+                                                        symbol_type=cur_object.get_type(), base_object=cur_object,
+                                                        parent=self._symbol_table.get_symbol_by_name(
+                                                            cur_object.get_id()),
+                                                        value=None))
         elif cur_object.get_type() == 'card_property':
-            pass
+            if not self._symbol_table.get_symbol_by_name(name=cur_object.get_id()):
+                raise InterpreterError
+            if not self._symbol_table.get_symbol_by_name(name=cur_object.get_id() + ':' + cur_object.get_card()):
+                raise InterpreterError
+
+            name = cur_object.get_id() + ':' + cur_object.get_card() + '.' + cur_object.get_property()
+            parent = self._symbol_table.get_symbol_by_name(cur_object.get_id() + ':' + cur_object.get_card())
+
+            self._symbol_table.add_symbol(symbol=Symbol(name=name, symbol_type=cur_object.get_type(),
+                                                        base_object=cur_object,
+                                                        parent=parent,
+                                                        value=None))
+            parent.value.add_property(cur_object.get_property(), 0)
+        else:  # player property
+            if not self._symbol_table.get_symbol_by_name(name=cur_object.get_id()):
+                raise InterpreterError
+
+            parent = self._symbol_table.get_symbol_by_name(cur_object.get_id())
+            self._symbol_table.add_symbol(symbol=Symbol(name=cur_object.get_id() + '.' + cur_object.get_property(),
+                                                        symbol_type=cur_object.get_type(), base_object=cur_object,
+                                                        parent=parent,
+                                                        value=None))
+
+        # Handle value
+        definition = node.get_children()[1]
+
+        if definition.func_name == 'Player':
+            if cur_object.get_type() != 'player':
+                raise InterpreterError
+            self._symbol_table.get_symbol_by_name(name=cur_object.get_id()).value = Player(name=cur_object.get_id())
+        elif definition.func_name == 'Card':
+            if cur_object.get_type() != 'card':
+                raise InterpreterError
+            name = cur_object.get_id() + ':' + cur_object.get_card()
+            self._symbol_table.get_symbol_by_name(name=name).value = Card(name=name, card_name=definition.arguments[0],
+                                                                          card_type=definition.arguments[1],
+                                                                          power=definition.arguments[2],
+                                                                          toughness=definition.arguments[3],
+                                                                          rest=definition.arguments[4])
+        elif definition.func_name == 'Token':
+            if cur_object.get_type() != 'card':
+                raise InterpreterError
+
+            name = cur_object.get_id() + ':' + cur_object.get_card()
+            self._symbol_table.get_symbol_by_name(name=name).value = Card(name=name, card_name='Token',
+                                                                          card_type=definition.arguments[1],
+                                                                          power=definition.arguments[2],
+                                                                          toughness=definition.arguments[3],
+                                                                          rest=definition.arguments[4])
+        elif definition.func_name == 'Property':
+            if cur_object.get_type() != 'property' or cur_object.get_type() != 'card_property':
+                raise InterpreterError
+            elif cur_object.get_type() == 'card_property':
+                name = cur_object.get_property()
+                card_name = cur_object.get_id() + ':' + cur_object.get_card()
+                self._symbol_table.get_symbol_by_name(name=card_name).value.add_property(name=name,
+                                                                                         value=definition.arguments[0])
+            else:
+                name = cur_object.get_property()
+                player_name = cur_object.get_id()
+                self._symbol_table.get_symbol_by_name(name=player_name).value.add_property(name=name,
+                                                                                           value=definition.arguments[0])
         else:
-            pass
-
-
-    def _visit_Object(self, node: Object):
-        pass
+            raise InterpreterError
 
 
 class InterpreterError(Exception):

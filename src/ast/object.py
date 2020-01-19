@@ -35,7 +35,12 @@ class Object(ASTNode):
 
     def get_id(self) -> str:
         return self.id
-    
+
     def get_type(self) -> str:
         return self.type
 
+    def get_property(self):
+        return self.property
+
+    def get_card(self):
+        return self.card
