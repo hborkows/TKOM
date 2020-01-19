@@ -3,7 +3,7 @@ from src.ast.object import Object
 
 class Symbol:
 
-    def __init__(self, name: str, symbol_type: str, value: int, base_object: Object, parent):
+    def __init__(self, name: str, symbol_type: str, value, base_object: Object, parent):
         self.name = name
         self.symbol_type = symbol_type
         self.value = value

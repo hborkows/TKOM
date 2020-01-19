@@ -1,5 +1,5 @@
 from src.parser.parser import Parser
-from src.interpreter.symbol_table import SymbolTable
+from src.interpreter.symbol_table import SymbolTable, Symbol
 
 from src.ast.ast_node import ASTNode
 from src.ast.ast_node import ASTNode
@@ -41,12 +41,8 @@ class Interpreter(NodeVisitor):
             self._visit(instruction)
 
     def _visit_Instruction(self, node: Instruction):
-        if isinstance(node, SpecialCommand):
+        if isinstance(node, SpecialCommand) or isinstance(node, Assignment) or isinstance(node, Action):
             self._visit(node)
-        elif isinstance(node, Assignment):
-            pass
-        elif isinstance(node, Action):
-            pass
         else:
             raise InterpreterError
 
@@ -63,6 +59,29 @@ class Interpreter(NodeVisitor):
             print('Cards have been cleared.')
         else:
             raise InterpreterError
+
+    def _visit_Action(self, node: Action):
+        pass
+
+    def _visit_Assignment(self, node: Assignment):
+        # Handle object name
+        cur_object = node.get_children()[0]
+        if self._symbol_table.is_symbol_defined(name=cur_object.get_id()):
+            raise InterpreterError
+
+        if cur_object.get_type() == 'player':
+            self._symbol_table.add_symbol(symbol=Symbol(name=cur_object.get_id(), symbol_type=cur_object.get_type(),
+                                                        base_object=cur_object, parent=None, value=None))
+        elif cur_object.get_type() == 'card':
+            pass
+        elif cur_object.get_type() == 'card_property':
+            pass
+        else:
+            pass
+
+
+    def _visit_Object(self, node: Object):
+        pass
 
 
 class InterpreterError(Exception):

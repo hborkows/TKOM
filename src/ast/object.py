@@ -33,3 +33,9 @@ class Object(ASTNode):
     def get_children(self) -> Optional[List]:
         return []
 
+    def get_id(self) -> str:
+        return self.id
+    
+    def get_type(self) -> str:
+        return self.type
+
