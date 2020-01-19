@@ -72,7 +72,7 @@ class Parser:
 
     def _parse_action_or_assignment(self) -> Instruction:
         actions = [LexType.block_kw, LexType.attack_kw, LexType.life_kw, LexType.remove_kw, LexType.destroy_kw,
-                   LexType.exile_kw, LexType.add_kw]
+                   LexType.exile_kw, LexType.add_kw, LexType.inc_op, LexType.dec_op]
 
         object1: Object = self._parse_object()
 

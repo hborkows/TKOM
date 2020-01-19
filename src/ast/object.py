@@ -30,6 +30,16 @@ class Object(ASTNode):
         elif self.type == 'property':
             return 'Property: ' + self.id + '.' + self.property
 
+    def get_name(self) -> str:
+        if self.type == 'player':
+            return self.id
+        elif self.type == 'card':
+            return self.id + ':' + self.card
+        elif self.type == 'card_property':
+            return self.id + ':' + self.card + '.' + self.property
+        elif self.type == 'property':
+            return self.id + '.' + self.property
+
     def get_children(self) -> Optional[List]:
         return []
 

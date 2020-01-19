@@ -27,7 +27,9 @@ class SymbolTable:
         return result
 
     def remove_symbol_by_name(self, name: str):
-        self._symbol_table.pop(name)
+        symbol = self._symbol_table.pop(name)
+        if symbol.symbol_type == 'card':
+            symbol.parent.value.remove_card(name=symbol.name)
 
     def remove_symbols_by_type(self, symbol_type: str):
         for item in self.get_symbols_by_type(symbol_type=symbol_type):

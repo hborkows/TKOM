@@ -14,8 +14,11 @@ class Player:
         self.cards[card.name] = card
 
     def remove_card(self, name: str):
-
+        self.cards.pop(name)
 
     def add_property(self, name: str, value: int):
         self.properties[name] = value
+
+    def get_property_by_name(self, name: str):
+        return self.properties[name]
 
