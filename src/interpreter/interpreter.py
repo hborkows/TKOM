@@ -2,7 +2,6 @@ from src.parser.parser import Parser
 from src.interpreter.symbol_table import SymbolTable, Symbol
 
 from src.ast.ast_node import ASTNode
-from src.ast.ast_node import ASTNode
 from src.ast.instruction_block import InstructionBlock
 from src.ast.instruction import Instruction
 from src.ast.spec_command import SpecialCommand
@@ -11,9 +10,7 @@ from src.ast.loop import Loop
 from src.ast.assignment import Assignment
 from src.ast.number import Number
 from src.ast.object import Object
-from src.ast.definition import Definition
 from src.ast.math_expression import MathExpression
-from src.ast.math_op import MathOp
 from src.lexer.lex_type import LexType
 
 from src.objects.card import Card
@@ -32,9 +29,9 @@ class NodeVisitor(object):
 
 class Interpreter(NodeVisitor):
 
-    def __init__(self, parser: Parser, symbol_table: SymbolTable):
+    def __init__(self, parser: Parser):
         self._parser = parser
-        self._symbol_table = symbol_table
+        self._symbol_table = SymbolTable()
 
     def interpret(self):
         tree: ASTNode = self._parser.parse()
