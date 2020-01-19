@@ -65,7 +65,8 @@ class Interpreter(NodeVisitor):
             raise InterpreterError
 
     def _visit_Action(self, node: Action):
-        pass
+        if node.action_name in (LexType.destroy_kw, LexType.remove_kw, LexType.exile_kw):
+
 
     def _visit_Assignment(self, node: Assignment):
         # Handle object name
@@ -120,21 +121,21 @@ class Interpreter(NodeVisitor):
             if cur_object.get_type() != 'card':
                 raise InterpreterError
             name = cur_object.get_id() + ':' + cur_object.get_card()
-            self._symbol_table.get_symbol_by_name(name=name).value = Card(name=name, card_name=definition.arguments[0],
-                                                                          card_type=definition.arguments[1],
-                                                                          power=self._visit(definition.arguments[2]),
-                                                                          toughness=self._visit(definition.arguments[3]),
-                                                                          rest=definition.arguments[4])
+            new_card = Card(name=name, card_name=definition.arguments[0], card_type=definition.arguments[1],
+                            power=self._visit(definition.arguments[2]),toughness=self._visit(definition.arguments[3]),
+                            rest=definition.arguments[4])
+            self._symbol_table.get_symbol_by_name(name=name).value = new_card
+            self._symbol_table.get_symbol_by_name(name=cur_object.get_id()).value.add_card(card=new_card)
         elif definition.func_name == 'Token':
             if cur_object.get_type() != 'card':
                 raise InterpreterError
 
             name = cur_object.get_id() + ':' + cur_object.get_card()
-            self._symbol_table.get_symbol_by_name(name=name).value = Card(name=name, card_name='Token',
-                                                                          card_type=definition.arguments[1],
-                                                                          power=self._visit(definition.arguments[2]),
-                                                                          toughness=self._visit(definition.arguments[3]),
-                                                                          rest=definition.arguments[4])
+            new_card = Card(name=name, card_name='Token', card_type=definition.arguments[1],
+                            power=self._visit(definition.arguments[2]), toughness=self._visit(definition.arguments[3]),
+                            rest=definition.arguments[4])
+            self._symbol_table.get_symbol_by_name(name=name).value = new_card
+            self._symbol_table.get_symbol_by_name(name=cur_object.get_id()).value.add_card(card=new_card)
         elif definition.func_name == 'Property':
             if cur_object.get_type() != 'property' or cur_object.get_type() != 'card_property':
                 raise InterpreterError
@@ -169,7 +170,6 @@ class Interpreter(NodeVisitor):
 
     def _visit_Loop(self, node: Loop):
         repeat_count = self._visit(node.count)
-
         i = 0
         while i < repeat_count:
             self._visit(node.block)

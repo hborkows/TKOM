@@ -13,6 +13,9 @@ class Player:
     def add_card(self, card: Card):
         self.cards[card.name] = card
 
+    def remove_card(self, name: str):
+
+
     def add_property(self, name: str, value: int):
         self.properties[name] = value
 
