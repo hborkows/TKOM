@@ -122,8 +122,8 @@ class Interpreter(NodeVisitor):
             name = cur_object.get_id() + ':' + cur_object.get_card()
             self._symbol_table.get_symbol_by_name(name=name).value = Card(name=name, card_name=definition.arguments[0],
                                                                           card_type=definition.arguments[1],
-                                                                          power=definition.arguments[2],
-                                                                          toughness=definition.arguments[3],
+                                                                          power=self._visit(definition.arguments[2]),
+                                                                          toughness=self._visit(definition.arguments[3]),
                                                                           rest=definition.arguments[4])
         elif definition.func_name == 'Token':
             if cur_object.get_type() != 'card':
@@ -132,8 +132,8 @@ class Interpreter(NodeVisitor):
             name = cur_object.get_id() + ':' + cur_object.get_card()
             self._symbol_table.get_symbol_by_name(name=name).value = Card(name=name, card_name='Token',
                                                                           card_type=definition.arguments[1],
-                                                                          power=definition.arguments[2],
-                                                                          toughness=definition.arguments[3],
+                                                                          power=self._visit(definition.arguments[2]),
+                                                                          toughness=self._visit(definition.arguments[3]),
                                                                           rest=definition.arguments[4])
         elif definition.func_name == 'Property':
             if cur_object.get_type() != 'property' or cur_object.get_type() != 'card_property':
@@ -142,12 +142,12 @@ class Interpreter(NodeVisitor):
                 name = cur_object.get_property()
                 card_name = cur_object.get_id() + ':' + cur_object.get_card()
                 self._symbol_table.get_symbol_by_name(name=card_name).value.add_property(name=name,
-                                                                                         value=definition.arguments[0])
+                                                                                         value=self._visit(definition.arguments[0]))
             else:
                 name = cur_object.get_property()
                 player_name = cur_object.get_id()
                 self._symbol_table.get_symbol_by_name(name=player_name).value.add_property(name=name,
-                                                                                           value=definition.arguments[0])
+                                                                                           value=self._visit(definition.arguments[0]))
         else:
             raise InterpreterError
 
@@ -168,7 +168,11 @@ class Interpreter(NodeVisitor):
         return node.value
 
     def _visit_Loop(self, node: Loop):
-        pass
+        repeat_count = self._visit(node.count)
+
+        i = 0
+        while i < repeat_count:
+            self._visit(node.block)
 
 
 class InterpreterError(Exception):
