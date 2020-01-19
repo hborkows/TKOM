@@ -4,7 +4,7 @@ from src.ast.ast_node import ASTNode
 
 class NodeVisitor(object):
     def _visit(self, node: ASTNode):
-        method_name = 'visit_' + type(node).__name__
+        method_name = '_visit_' + type(node).__name__
         visitor = getattr(self, method_name, self._generic_visit)
         return visitor(node)
 
