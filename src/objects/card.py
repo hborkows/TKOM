@@ -20,3 +20,10 @@ class Card:
             return self.properties[name]
         else:
             return None
+
+    def get_representation(self):
+        result = '\n'
+        for key in self.properties.keys():
+            result += '---' + key + ': ' + str(self.properties[key]) + '\n'
+
+        return result

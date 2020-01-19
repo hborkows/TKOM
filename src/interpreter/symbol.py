@@ -11,7 +11,7 @@ class Symbol:
         self.parent = parent
 
     def get_representation(self):
-        return self.base_object.get_representation()
+        return self.base_object.get_representation() + self.value.get_representation()
 
     def get_children(self):
         return self.base_object.get_children()

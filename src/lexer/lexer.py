@@ -44,7 +44,7 @@ class Lexer:
             raise LexerError
 
     def _skip_whitespace(self):
-        while self._source.get_char().isspace():
+        while self._source.get_char().isspace() or self._source.get_char() == ',':
             self._source.pop_char()
 
     def _check_keyword(self) -> Optional[Token]:

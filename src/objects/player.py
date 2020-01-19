@@ -11,7 +11,7 @@ class Player:
         self.add_property(name='life', value=20)
 
     def add_card(self, card: Card):
-        self.cards[card.name] = card
+        self.cards[card.name[0]] = card
 
     def remove_card(self, name: str):
         self.cards.pop(name)
@@ -22,3 +22,9 @@ class Player:
     def get_property_by_name(self, name: str):
         return self.properties[name]
 
+    def get_representation(self):
+        result = '\n'
+        for key in self.properties.keys():
+            result += '---' + key + ': ' + str(self.properties[key]) + '\n'
+
+        return result

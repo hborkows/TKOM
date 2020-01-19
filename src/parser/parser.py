@@ -32,7 +32,9 @@ class Parser:
         if not self._current_token:
             self._consume_token()
 
-        return self._parse_instruction_block()
+        result = self._parse_instruction_block()
+        self._current_token = None
+        return result
 
     def _consume_token(self) -> Token:
         result = self._current_token
@@ -50,7 +52,7 @@ class Parser:
 
     def _parse_instruction_block(self) -> InstructionBlock:
         instructions: List[Instruction] = []
-        while self._current_token.type != LexType.eof:
+        while self._current_token.type != LexType.eof and self._current_token.type != LexType.right_curl_bracket:
             instructions.append(self._parse_instruction())
 
         return InstructionBlock(instructions=instructions)
@@ -103,7 +105,7 @@ class Parser:
             return Definition(func_name=function_name, arguments=[])
         elif function_name == 'Card':
             self._accept_and_consume_token(LexType.left_bracket)
-            args = self._parse_arguments(['text', 'text', 'text', 'number', 'number', 'text'])
+            args = self._parse_arguments(['text', 'text', 'number', 'number', 'text'])
             self._accept_and_consume_token(LexType.right_bracket)
             return Definition(func_name=function_name, arguments=args)
         elif function_name == 'Token':
@@ -128,7 +130,7 @@ class Parser:
                 else:
                     raise ParserError
             elif arg == 'number':
-                if self._accept([LexType.number]):
+                if self._accept([LexType.number, LexType.left_bracket]):
                     result.append(self._parse_math_expression())
                 else:
                     raise ParserError

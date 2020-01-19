@@ -48,14 +48,14 @@ class Interpreter(NodeVisitor):
             raise InterpreterError
 
     def _visit_SpecialCommand(self, node: SpecialCommand):
-        if node.command.name == 'gamestate':
+        if node.command == LexType.gamestate_kw:
             print('Gamestate:')
             for symbol in self._symbol_table.get_symbols_by_type(symbol_type='any'):
                 print(symbol.get_representation())
-        elif node.command.name == 'reset':
+        elif node.command == LexType.reset_kw:
             self._symbol_table.clear()
             print('Gamestate has been reset.')
-        elif node.command.name == 'clear_cards':
+        elif node.command == LexType.clear_cards_kw:
             self._symbol_table.remove_symbols_by_type(symbol_type='card')
             print('Cards have been cleared.')
         else:
@@ -97,9 +97,9 @@ class Interpreter(NodeVisitor):
             card1_death = False
             card2_death = False
 
-            if card1.value.get_parameter_by_name(name='power') > card2.value.get_parameter_by_name(name='toughness'):
+            if card1.value.get_property_by_name(name='power') > card2.value.get_property_by_name(name='toughness'):
                 card2_death = True
-            if card2.value.get_parameter_by_name(name='power') > card1.value.get_parameter_by_name(name='toughness'):
+            if card2.value.get_property_by_name(name='power') > card1.value.get_property_by_name(name='toughness'):
                 card1_death = True
 
             if card1_death:
@@ -122,7 +122,7 @@ class Interpreter(NodeVisitor):
         elif definition.func_name == 'Card':
             if cur_object.get_type() != 'card':
                 raise InterpreterError
-            name = cur_object.get_id() + ':' + cur_object.get_card()
+            name: str = cur_object.get_id() + ':' + cur_object.get_card()
             new_card = Card(name=name, card_name=definition.arguments[0], card_type=definition.arguments[1],
                             power=self._visit(definition.arguments[2]), toughness=self._visit(definition.arguments[3]),
                             rest=definition.arguments[4])
@@ -139,7 +139,7 @@ class Interpreter(NodeVisitor):
             self._symbol_table.get_symbol_by_name(name=name).value = new_card
             self._symbol_table.get_symbol_by_name(name=cur_object.get_id()).value.add_card(card=new_card)
         elif definition.func_name == 'Property':
-            if cur_object.get_type() != 'property' or cur_object.get_type() != 'card_property':
+            if cur_object.get_type() != 'property' and cur_object.get_type() != 'card_property':
                 raise InterpreterError
             elif cur_object.get_type() == 'card_property':
                 name = cur_object.get_property()
@@ -155,10 +155,9 @@ class Interpreter(NodeVisitor):
             raise InterpreterError
 
     def _visit_Object(self, cur_object: Object):
-        if self._symbol_table.is_symbol_defined(name=cur_object.get_id()):
-            raise InterpreterError
-
         if cur_object.get_type() == 'player':
+            if self._symbol_table.is_symbol_defined(name=cur_object.get_id()):
+                raise InterpreterError
             self._symbol_table.add_symbol(symbol=Symbol(name=cur_object.get_id(), symbol_type=cur_object.get_type(),
                                                         base_object=cur_object, parent=None,
                                                         value=None))
@@ -223,6 +222,7 @@ class Interpreter(NodeVisitor):
         i = 0
         while i < repeat_count:
             self._visit(node.block)
+            i += 1
 
 
 class InterpreterError(Exception):
